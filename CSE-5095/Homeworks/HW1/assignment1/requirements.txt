@@ -1,0 +1,15 @@
+future
+ipykernel==4.2.2
+ipython==4.0.1
+ipython-genutils==0.1.0
+ipywidgets==4.1.1
+jupyter==1.0.0
+jupyter-client==4.1.1
+jupyter-console==4.0.3
+jupyter-core==4.0.6
+matplotlib #==2.0.0
+notebook==4.0.6
+numpy #==1.10.4
+scipy
+imageio
+tornado==4.3

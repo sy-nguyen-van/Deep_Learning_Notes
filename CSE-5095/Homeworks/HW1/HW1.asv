@@ -1,0 +1,34 @@
+clear all;
+x = [5,-1,6,12,7,-5];
+f=myfunc(x)
+
+
+
+
+
+
+
+
+
+
+
+
+function [f, df] = myfunc(x)
+x1=x(1);x2=x(2);x3=x(3);x4=x(4);x5=x(5);x6=x(6);
+P =10;
+y = (x1^P + x2^P)^(1/P);
+z=5*(y*x3/x4-x5-x6);
+u=log(z)+1/2;
+f=1/(1+exp(-u));
+df=[df1;df2;df3;df4]
+end
+
+function f=d_myfunc(x)
+x1=x(1);x2=x(2);x3=x(3);x4=x(4);x5=x(5);x6=x(6);
+P =10;
+y = (x1^P + x2^P)^(1/P);
+z=5*(y*x3/x4-x5-x6);
+u=log(z)+1/2;
+f=1/(1+exp(-u));
+
+end
