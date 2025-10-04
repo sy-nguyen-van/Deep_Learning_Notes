@@ -33,7 +33,15 @@ end
 OPT.functions.n_func =  numel(OPT.functions.f);
 
 % Determine if stress will be computed
-OPT.stress_needed = 0;
+OPT.stress_needed = false;
+OPT.write_stress_to_vtk = false;
+for i = 1:OPT.functions.n_func
+    if strcmpi(OPT.functions.f{i}.name, 'maximum stress violation')
+        OPT.stress_needed = true;
+        OPT.write_stress_to_vtk = true;
+        break;
+    end
+end
 
 OPT.n_dv = FE.n_elem;   % Number of design variables
 OPT.dv = OPT.parameters.init_dens*ones(OPT.n_dv,1); % Initial design

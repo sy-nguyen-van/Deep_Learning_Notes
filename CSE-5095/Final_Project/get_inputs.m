@@ -52,7 +52,7 @@ OPT.input_file_name ='input_files/Lbracket2d/ACS/h1_P10_r25/inputs_Lbracket2d.m'
 % ===========================
 %
 % OPT.input_file_name = 'input_files/cracked_plate2d/MRF/inputs_cracked_plate2d.m'; MRF
-% OPT.input_file_name = 'input_files/cracked_plate2d/ACS/inputs_cracked_plate2d.m'; ACS
+% OPT.input_file_name = 'input_files/cracked_plate2d/ACS/inputs_cracked_plate2d.m'; 
 
 %% Example 4 -- Double L-bracket
 % ==============================

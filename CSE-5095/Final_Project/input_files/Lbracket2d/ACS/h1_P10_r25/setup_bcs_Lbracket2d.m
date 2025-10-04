@@ -11,7 +11,7 @@ function setup_bcs_Lbracket2d()
 % freedom.
 
 % ** Do not modify this line **
-global FE
+global FE OPT
 
 coord_x = FE.coords(1,:);
 coord_y = FE.coords(2,:);
@@ -29,8 +29,9 @@ l = FE.mesh_input.L_side;
 c = FE.mesh_input.L_cutout;
 
 tol = FE.max_elem_side/1000;
-TR_pt  = find( ( FE.coords(1,:) > (l-tol)) & (FE.coords(2,:) > (7/8)*(l-c) - tol) ...
-    & (FE.coords(2,:) < l-c + tol) );
+TR_pt  = find( ( FE.coords(1,:) > (l-tol)) & (FE.coords(2,:) > OPT.TR_min - tol) ...
+    & (FE.coords(2,:) < OPT.TR_max + tol) );
+
 T_edge = find(FE.coords(2,:) > l - tol);
 %% ============================        
 % Find columns that contain any value from idx
@@ -39,6 +40,7 @@ FE.BCs.fixed_indices = find(col_mask);
 % ----------
 col_mask = any(ismember(FE.elem_node, TR_pt), 1);
 FE.BCs.forces_indices = find(col_mask);
+
 %% ============================        
 %% Number of load cases
 % Note: in this implementation, load cases can have different forces, but

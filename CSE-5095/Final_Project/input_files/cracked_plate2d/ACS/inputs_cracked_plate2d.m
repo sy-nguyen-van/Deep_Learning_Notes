@@ -55,7 +55,7 @@ FE.mesh_input.type = 'generate';
 
 % If mesh input type is 'generate', you must specify the dimensions of
 % the rectangle/cuboid and the number of elements along each direction:
-FE.mesh_input.box_dimensions = [1000 2000]; % ***
+FE.mesh_input.box_dimensions = [100 200]; % ***
 FE.mesh_input.elements_per_side = [100 200]; % ***
 
 % If mesh input type is 'read-home-made', you must provide a

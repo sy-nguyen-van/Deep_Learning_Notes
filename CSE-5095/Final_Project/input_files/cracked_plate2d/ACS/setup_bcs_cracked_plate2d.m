@@ -11,7 +11,7 @@ function setup_bcs_cracked_plate2d()
 % freedom.
 
 % ** Do not modify this line **
-global FE
+global FE OPT
 
 coord_x = FE.coords(1,:);
 coord_y = FE.coords(2,:);
@@ -30,7 +30,11 @@ H = FE.mesh_input.box_dimensions(2);
 d = H/20;
 
 tol = FE.max_elem_side/1000;
-load_nodes = find( (FE.coords(1,:) > (W-tol)) & (FE.coords(2,:) > H - d - tol) );
+
+load_nodes = find( (FE.coords(1,:) > (W-tol)) & (FE.coords(2,:) > 0.85*H+OPT.TR_min - tol) ...
+    & (FE.coords(2,:) < 0.85*H+OPT.TR_max + tol) );
+
+
 sym_nodes = find( (FE.coords(1,:) < tol) & (FE.coords(2,:) < H/2 + tol) );
 BL_pt = FE.node_set.BL_pt;
 %% ============================        

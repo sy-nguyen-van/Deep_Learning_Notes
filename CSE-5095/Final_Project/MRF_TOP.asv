@@ -1,0 +1,109 @@
+clear all; close all; clc;
+%% source folders containing scripts not in this folder
+addpath(genpath('FE_routines'))
+addpath(genpath('functions'))
+addpath(genpath('mesh_utilities'))
+addpath(genpath('optimization'))
+addpath(genpath('utilities'))
+addpath(genpath('plotting'))
+global OPT FE
+OPT.train_input = 'data/train/input/';
+OPT.train_output = 'data/train/output/';
+OPT.val_input = 'data/val/input/';
+OPT.val_output = 'data/val/output/';
+%% Initialization
+% ============================
+no_input = 10; % number of samples
+% Latin Hypercube Sampling in [0,1]
+lhs = lhsdesign(no_input, 1); % no_input x 2
+% Scale to your parameter ranges
+TR_min_List = lhs*30;        % scale to [0,30]
+% Display results
+for index = 1:no_input
+    close all;
+    OPT.TR_min = TR_min_List(index);
+    OPT.TR_max = OPT.TR_min  + 5;
+    get_inputs();
+    OPT.options.max_iter = 100;
+    init_FE(); 
+    init_optimization();    
+    %% Analysis
+    perform_analysis();
+    compute_stress_U();
+    F = FE.elem_node'; % matrix of faces to be sent to patch function
+    V = FE.coords'; % vertex list to be sent to patch function
+    % -------------------------------------
+    fig_eps_x = myfig(2,F,V,FE.strain(1,:));
+    fig_eps_y = myfig(3,F,V,FE.strain(2,:));
+    fig_eps_xy = myfig(4,F,V,FE.strain(3,:));
+    figMises = myfig(5,F,V,FE.svm);
+    % -------------------------------------
+    %% Optimization
+    runmma(OPT.dv, @(x)obj(x), @(x)nonlcon(x));
+    fig_TOP = myfig(6,F,V, OPT.pen_rho_e);
+    targetSize = [256,256]; % resize to 128x128
+    saveFigAsInputOutput(fig_eps_x, fig_eps_y, fig_eps_xy, figMises, fig_TOP, index, OPT, targetSize);
+    % % ================================
+end
+%
+
+
+% ==========
+function saveFigAsInputOutput(fig_eps_x, fig_eps_y, fig_eps_xy, figMises,figTOP, index, OPT, targetSize)
+% saveFigAsInputOutput Save input figures to OPT.train_input and output to OPT.train_output
+%
+% INPUTS:
+%   fig_eps_x, fig_eps_y, fig_eps_xy - input figure/axes handles
+%   figTOP                  - output (optimized design figure)
+%   index                   - case index (integer)
+%   OPT                     - struct with fields:
+%                               OPT.train_input  - folder to save inputs
+%                               OPT.train_output - folder to save outputs
+%   targetSize              - [H,W] resize images (default: [256,256])
+%
+% OUTPUT:
+%   Saves two .mat files: X (input) and Y (output) in their respective folders
+
+if nargin < 7
+    targetSize = [256, 256];
+end
+
+% Helper function to capture and resize figure
+    function imgNorm = captureFigResized(fig, targetSize)
+        if isa(fig,'matlab.ui.Figure')
+            ax = fig.CurrentAxes;
+        else
+            ax = fig;
+        end
+        frame = getframe(ax);
+        img = frame.cdata;
+        imgGray = rgb2gray(img);
+        imgResized = imresize(imgGray, targetSize);
+        imgNorm = double(imgResized)/255;
+    end
+
+% Capture inputs
+img_eps_x    = captureFigResized(fig_eps_x, targetSize);
+img_eps_y   = captureFigResized(fig_eps_y, targetSize);
+img_eps_xy   = captureFigResized(fig_eps_xy, targetSize);
+img_Mises = captureFigResized(figMises, targetSize);
+
+% Capture output
+img_TOP = captureFigResized(figTOP, targetSize);
+
+% Combine inputs into 3-channel array
+X = cat(4, img_eps_x, img_eps_y, img_eps_xy, img_Mises);
+Y = img_TOP; % 1-channel output
+
+% Ensure folders exist
+if ~exist(OPT.train_input,'dir')
+    mkdir(OPT.train_input);
+end
+if ~exist(OPT.train_output,'dir')
+    mkdir(OPT.train_output);
+end
+
+% Save input and output separately
+save(fullfile(OPT.train_input, ['input_', num2str(index), '.mat']), 'X');
+save(fullfile(OPT.train_output, ['output_', num2str(index), '.mat']), 'Y');
+end
